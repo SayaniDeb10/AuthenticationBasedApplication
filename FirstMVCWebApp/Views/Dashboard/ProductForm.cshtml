@@ -46,17 +46,18 @@
             <div class="col-md-6">
 
                 <div class="card shadow">
-                    <div class="card-header bg-success text-white">
+                    <div class="card-header @(Model?.Id>0? "bg-warning":"bg-success") text-white">
                         <h4 class="mb-0">
                             <i class="bi bi-plus-circle"></i>
-                            Add Product
+                            @(Model?.Id>0 ? "Edit Product" : "Add Product")
                         </h4>
                     </div>
 
                     <div class="card-body">
 
-                        <form asp-action="CreateProduct" method="post">
-
+                        @* <form asp-action="CreateProduct" method="post"> *@
+                            <form asp-action="SaveProduct" method="post">
+                                <input type="hidden" asp-for="Id"/>
                             <div class="mb-3">
                                 <label asp-for="ProductName" class="form-label">
                                     Product Name <span class="text-danger">*</span>
@@ -103,7 +104,7 @@
                                 <button type="submit"
                                         class="btn btn-success flex-fill">
                                     <i class="bi bi-check-circle"></i>
-                                    Save Product
+                                    @(Model?.Id> 0 ? "Update Product" : "Save Product")
                                 </button>
 
                                 <a asp-controller="Dashboard"

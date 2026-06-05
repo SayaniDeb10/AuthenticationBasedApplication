@@ -1,6 +1,7 @@
 ﻿using FirstMVCWebApp.Data;
 using FirstMVCWebApp.Dto;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace FirstMVCWebApp.Controllers
 {
@@ -17,6 +18,7 @@ namespace FirstMVCWebApp.Controllers
         }
         public IActionResult ProductForm() => View();
       
+        //It was for create or Add product (Old)
         public async Task<IActionResult> CreateProduct(ProductDto dto)
         {
             if(dto == null)
@@ -44,6 +46,82 @@ namespace FirstMVCWebApp.Controllers
                    $"Inner Exception: {ex.InnerException?.Message}"
    );
             }
+        }
+        [HttpPost]
+        public async Task<IActionResult> DeleteProduct(int productId)
+        {
+            var product = await context.Products.FirstOrDefaultAsync(x => x.Id == productId);
+            context.Products.Remove(product);
+            await context.SaveChangesAsync();
+            return RedirectToAction("Index");
+        }
+
+        public async Task<IActionResult> EditProduct(int productId)
+        {
+            var product = await context.Products.FirstOrDefaultAsync(x => x.Id == productId);
+
+            if(product == null)
+            {
+                return RedirectToAction("Index");
+            }
+            else
+            {
+                var dto = new ProductDto
+                {
+                    Id = product.Id,
+                    ProductName = product.ProductName,
+                    Description = product.Description,
+                    Price = product.Price,
+                    Colour = product.Colour
+                };
+                return View("ProductForm", dto);
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SaveProduct(ProductDto dto)
+        {
+            if (dto == null)
+            {
+                ViewBag.ErrorMessage = "please Fill All Details.";
+                return View("ProductForm");
+            }
+            try
+            {
+                if(dto.Id == 0)
+                {
+                    //Add Product
+                    context.Products.Add(new Models.Product
+                    {
+                        ProductName = dto.ProductName,
+                        Description = dto.Description,
+                        Price = dto.Price,
+                        Colour = dto.Colour
+                    });
+                }
+                else
+                {
+                    //Edit Product
+                    var product = await context.Products.FirstOrDefaultAsync(
+                        x=>x.Id == dto.Id);
+
+                    if(product == null)
+                    {
+                        return RedirectToAction("Index");
+                    }
+                    else
+                    {
+                        product.ProductName = dto.ProductName;
+                        product.Description = dto.Description;
+                        product.Price = dto.Price;
+                        product.Colour = dto.Colour;
+                    }
+                }
+                await context.SaveChangesAsync();
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex) { return Content($"Message : {ex.Message}"); }
+            
         }
     }
 }
