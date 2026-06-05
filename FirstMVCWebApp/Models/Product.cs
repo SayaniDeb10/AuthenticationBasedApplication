@@ -1,11 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FirstMVCWebApp.Models
 {
     public class Product
     {
         [Key]
-        public string Id { get; set; }
+        public int Id { get; set; }
         public string ProductName { get; set; } = null!;
         public string Description { get; set; } = null!;
         public decimal Price { get; set; } = 0.00m;

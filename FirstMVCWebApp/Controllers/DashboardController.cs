@@ -15,5 +15,35 @@ namespace FirstMVCWebApp.Controllers
                 Description = x.Description, Price = x.Price, ProductName = x.ProductName}).ToList();
             return View(list);
         }
+        public IActionResult ProductForm() => View();
+      
+        public async Task<IActionResult> CreateProduct(ProductDto dto)
+        {
+            if(dto == null)
+            {
+                ViewBag.ErrorMessage = "please Fill All Details.";
+                return View("ProductForm");
+            }
+            try
+            {
+                context.Products.Add(new Models.Product
+                {
+                    Price = dto.Price,
+                    Description = dto.Description,
+                    ProductName = dto.ProductName,
+                    Colour = dto.Colour
+                });
+
+                await context.SaveChangesAsync();
+                return RedirectToAction("Index");
+            }
+            catch(Exception ex)
+            {
+                return Content(
+                   $"Message: {ex.Message}\n\n" +
+                   $"Inner Exception: {ex.InnerException?.Message}"
+   );
+            }
+        }
     }
 }
