@@ -12,7 +12,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 <body>
-    @* <header>
+    <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">FirstMVCWebApp</a>
@@ -28,11 +28,17 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
+                        @if (User!.Identity!.IsAuthenticated)
+                            {
+                            <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Auth" asp-action="LogoutUser">Logout</a>
+                            </li>
+                        }
                     </ul>
                 </div>
             </div>
         </nav>
-    </header> *@
+    </header>
     <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()

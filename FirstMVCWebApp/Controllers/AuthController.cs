@@ -3,6 +3,10 @@ using FirstMVCWebApp.Dto;
 using FirstMVCWebApp.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace FirstMVCWebApp.Controllers
 {
@@ -76,6 +80,15 @@ namespace FirstMVCWebApp.Controllers
             {
                 if (isUserExists.Password == dto.Password)
                 {
+                    var token = GenerateJWToken(dto);
+
+                    Response.Cookies.Append("jwt_key", token, new CookieOptions
+                    {
+                        HttpOnly = true,
+                        Secure = true,
+                        SameSite = SameSiteMode.Strict,
+                        Expires = DateTime.UtcNow.AddMinutes(30)
+                    });
                     //ViewBag.ErrorMessage = "Login Successfully.";
                     return RedirectToAction ("Index", "Dashboard");
                 }
@@ -85,6 +98,30 @@ namespace FirstMVCWebApp.Controllers
                     return View("Login");
                 }
             }
+        }
+
+        private string GenerateJWToken(UserDto dto)
+        {
+            var jwtHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.UTF8.GetBytes("eFwndUlSUWLFDnBAxTOpspSDvK8RpeYFdlnaCXQ4mJb");
+
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new System.Security.Claims.ClaimsIdentity(new[]
+                {
+                    new Claim(ClaimTypes.Name, dto.Email),
+                }),
+                Expires = DateTime.UtcNow.AddMinutes(30),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
+            var token = jwtHandler.CreateToken(tokenDescriptor);
+            return jwtHandler.WriteToken(token);
+        }
+
+        public IActionResult LogoutUser()
+        {
+            Response.Cookies.Delete("jwt_key");
+            return RedirectToAction("Login");
         }
     }
 }
